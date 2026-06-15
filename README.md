@@ -4,18 +4,19 @@ TODO
 - [ ] db postgres
   - [x] database connection, orm
   - [ ] migrations
-- [ ] backend fastapi
+- [x] backend fastapi
   - [x] user CRUD endpoints
-  - [ ] article CRUD endpoints
-  - [ ] image CRUD endpoints
+  - [x] article CRUD endpoints
+  - [x] image CRUD endpoints
+  - [ ] update endpoints
 - [ ] docker compose
   - [x] backend
   - [ ] frontend
   - [ ] entire application
 - [ ] auth jwt
-  - [ ] password hashing
-  - [ ] login endpoint giving httponly cookie
-  - [ ] logout endpoint
+  - [x] password hashing
+  - [x] login endpoint giving httponly cookie
+  - [x] logout endpoint
   - [ ] shield create/update/delete endpoints on only logged in users
 - [ ] frontend react mui
   - [ ] login
@@ -36,4 +37,4 @@ TODO
 - [ ] ci cd
   - [ ] github actions
 
-- [ ] adr 6 wpisow
+- [ ] adr 6 entries

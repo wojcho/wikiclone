@@ -116,3 +116,42 @@ def test_list_images():
     r = client.get("/images")
     assert r.status_code == 200
     assert isinstance(r.json(), list)
+
+
+def test_login_me_and_logout_flow():
+    # 1. Create user
+    payload = {
+        "username": "jwt_user",
+        "display_name": "JWT User",
+        "password": "secret",
+    }
+
+    r = client.post("/users", json=payload)
+    assert r.status_code == 200
+
+    # 2. Login (IMPORTANT: must match your login signature)
+    login_resp = client.post(
+        "/auth/login",
+        data={
+            "username": "jwt_user",
+            "password": "secret",
+        },
+    )
+
+    assert login_resp.status_code == 200
+    assert "access_token" in login_resp.cookies
+
+    # 3. Call /auth/me using cookie automatically stored in TestClient
+    me_resp = client.get("/auth/me")
+    assert me_resp.status_code == 200
+    me = me_resp.json()
+
+    assert me["username"] == "jwt_user"
+
+    # 4. Logout
+    logout_resp = client.post("/auth/logout")
+    assert logout_resp.status_code == 200
+
+    # 5. After logout, /me should fail
+    me_resp_after = client.get("/auth/me")
+    assert me_resp_after.status_code == 401

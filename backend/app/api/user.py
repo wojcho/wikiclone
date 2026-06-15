@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.dependencies import get_db
 from app.models.user import User
 from app.schemas.user import UserCreate, UserRead
+from app.security.passwords import hash_password
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -15,7 +16,7 @@ def create_user(payload: UserCreate, db: Session = Depends(get_db)):
     user = User(
         username=payload.username,
         display_name=payload.display_name,
-        password_hash=payload.password, # TODO later change to argon2
+        password_hash=hash_password(payload.password),
     )
 
     db.add(user)

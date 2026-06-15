@@ -7,6 +7,9 @@ from app.dependencies import get_db
 from app.models.user import User
 from app.schemas.user import UserCreate, UserRead
 from app.security.passwords import hash_password
+from app.security.guards import require_user
+from app.models.user import User
+
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -39,7 +42,11 @@ def list_users(db: Session = Depends(get_db)):
 
 
 @router.delete("/{user_id}")
-def delete_user(user_id: UUID, db: Session = Depends(get_db)):
+def delete_user(
+    user_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_user),
+):
     user = db.get(User, user_id)
     if not user:
         raise HTTPException(404)

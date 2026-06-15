@@ -7,6 +7,9 @@ from sqlalchemy.orm import Session
 from app.dependencies import get_db
 from app.models.image import Image
 from app.schemas.image import ImageRead
+from app.security.guards import require_user
+from app.models.user import User
+
 
 router = APIRouter(prefix="/images", tags=["images"])
 
@@ -15,6 +18,7 @@ router = APIRouter(prefix="/images", tags=["images"])
 async def upload_image(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
+    current_user: User = Depends(require_user),
 ):
     content = await file.read()
 

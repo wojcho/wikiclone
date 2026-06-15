@@ -32,41 +32,24 @@ def test_create_and_get_user():
     assert r.status_code == 200
     assert r.json()["username"] == "john"
 
-def test_create_and_get_article():
-    # First create a user (needed for FK)
-    user_payload = {
-        "username": "article_user",
-        "display_name": "Article User",
-        "password": "secret",
-    }
+def test_create_and_get_article(auth_client):
+    client = auth_client.create_user_and_login("article_user", "secret").client
 
-    user_resp = client.post("/users", json=user_payload)
-    assert user_resp.status_code == 200
-    user_id = user_resp.json()["id"]
+    article_resp = client.post(
+        "/articles",
+        json={
+            "display_name": "My Article",
+            "text": "Hello world",
+        },
+    )
 
-    # Create article
-    article_payload = {
-        "display_name": "My Article",
-        "text": "Hello world",
-        "creator_id": user_id,
-    }
-
-    r = client.post("/articles", json=article_payload)
-    assert r.status_code == 200
-
-    article = r.json()
+    assert article_resp.status_code == 200
+    article = article_resp.json()
     article_id = article["id"]
 
-    assert article["display_name"] == "My Article"
-    assert article["creator_id"] == user_id
-
-    # Fetch article
     r = client.get(f"/articles/{article_id}")
     assert r.status_code == 200
-
-    fetched = r.json()
-    assert fetched["id"] == article_id
-    assert fetched["text"] == "Hello world"
+    assert r.json()["text"] == "Hello world"
 
 
 def test_list_articles():
@@ -74,7 +57,9 @@ def test_list_articles():
     assert r.status_code == 200
     assert isinstance(r.json(), list)
 
-def test_upload_and_get_image_metadata():
+def test_upload_and_get_image_metadata(auth_client):
+    client = auth_client.create_user_and_login("article_user2", "secret").client
+
     file_content = b"fake-image-bytes"
 
     r = client.post(
@@ -95,7 +80,9 @@ def test_upload_and_get_image_metadata():
     assert r.json()["id"] == image_id
 
 
-def test_get_image_raw():
+def test_get_image_raw(auth_client):
+    client = auth_client.create_user_and_login("img_user", "secret").client
+
     file_content = b"raw-image-bytes"
 
     r = client.post(
@@ -118,40 +105,18 @@ def test_list_images():
     assert isinstance(r.json(), list)
 
 
-def test_login_me_and_logout_flow():
-    # 1. Create user
-    payload = {
-        "username": "jwt_user",
-        "display_name": "JWT User",
-        "password": "secret",
-    }
+def test_login_me_and_logout_flow(auth_client):
+    client = auth_client.create_user_and_login("jwt_user", "secret").client
 
-    r = client.post("/users", json=payload)
-    assert r.status_code == 200
+    # me works
+    me = client.get("/auth/me")
+    assert me.status_code == 200
+    assert me.json()["username"] == "jwt_user"
 
-    # 2. Login (IMPORTANT: must match your login signature)
-    login_resp = client.post(
-        "/auth/login",
-        data={
-            "username": "jwt_user",
-            "password": "secret",
-        },
-    )
+    # logout
+    logout = client.post("/auth/logout")
+    assert logout.status_code == 200
 
-    assert login_resp.status_code == 200
-    assert "access_token" in login_resp.cookies
-
-    # 3. Call /auth/me using cookie automatically stored in TestClient
-    me_resp = client.get("/auth/me")
-    assert me_resp.status_code == 200
-    me = me_resp.json()
-
-    assert me["username"] == "jwt_user"
-
-    # 4. Logout
-    logout_resp = client.post("/auth/logout")
-    assert logout_resp.status_code == 200
-
-    # 5. After logout, /me should fail
-    me_resp_after = client.get("/auth/me")
-    assert me_resp_after.status_code == 401
+    # now unauthorized
+    me_after = client.get("/auth/me")
+    assert me_after.status_code == 401

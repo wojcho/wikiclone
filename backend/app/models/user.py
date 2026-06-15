@@ -1,4 +1,4 @@
-from __future__ import annotations
+import uuid
 
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -30,7 +30,7 @@ class User(
         nullable=False,
     )
 
-    avatar_id: Mapped[str | None] = mapped_column(
+    avatar_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("images.id"),
         nullable=True,
     )

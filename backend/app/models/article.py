@@ -1,3 +1,5 @@
+import uuid
+
 from sqlalchemy import ForeignKey, Text, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -21,17 +23,17 @@ class Article(
         nullable=False,
     )
 
-    creator_id: Mapped[str] = mapped_column(
+    creator_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("users.id"),
         nullable=False,
     )
 
-    primary_image_id: Mapped[str | None] = mapped_column(
+    primary_image_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("images.id"),
         nullable=True,
     )
 
-    background_image_id: Mapped[str | None] = mapped_column(
+    background_image_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("images.id"),
         nullable=True,
     )

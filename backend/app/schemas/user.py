@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 from .image import ImageRead
 
+
 class UserCreate(BaseModel):
     username: str
     display_name: str

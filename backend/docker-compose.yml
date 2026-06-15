@@ -20,7 +20,7 @@ services:
     build: .
 
     environment:
-      DATABASE_URL: postgresql://wiki:wiki@postgres:5432/wiki
+      DATABASE_URL: postgresql+psycopg://wiki:wiki@postgres:5432/wiki
 
     depends_on:
       postgres:
@@ -29,3 +29,8 @@ services:
     ports:
       - "8000:8000"
 
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10

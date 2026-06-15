@@ -48,6 +48,8 @@ def update_user(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_user),
 ):
+    if current_user.id != user_id:
+        raise HTTPException(status_code=403, detail="User can mutate only own profile")
     user = db.get(User, user_id)
     if not user:
         raise HTTPException(404, "User not found")
@@ -76,6 +78,8 @@ def delete_user(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_user),
 ):
+    if current_user.id != user_id:
+        raise HTTPException(status_code=403, detail="User can mutate only own profile")
     user = db.get(User, user_id)
     if not user:
         raise HTTPException(404)

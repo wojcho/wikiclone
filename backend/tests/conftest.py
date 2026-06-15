@@ -4,12 +4,11 @@ import uuid
 
 from app.main import app
 
-client = TestClient(app)
-
 
 @pytest.fixture
 def test_client():
-    return client
+    with TestClient(app) as client:
+        yield client
 
 class AuthClient:
     def __init__(self, client: TestClient):

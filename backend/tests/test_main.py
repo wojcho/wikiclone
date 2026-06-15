@@ -2,6 +2,8 @@ from fastapi.testclient import TestClient
 
 from app.main import app
 
+from conftest import AuthClient
+
 client = TestClient(app)
 
 
@@ -236,3 +238,76 @@ def test_update_article_images(auth_client):
 
     assert r.status_code == 200
     assert r.json()["primary_image"]["id"] == img["id"]
+
+def test_cannot_update_other_user(auth_client):
+    alice = auth_client.create_user_and_login("alice", "secret")
+    bob = (AuthClient(TestClient(app))).create_user_and_login("bob", "secret")
+
+    alice_client = alice.client
+
+    bob_user = bob.client.get("/auth/me").json()
+
+    r = alice_client.patch(
+        f"/users/{bob_user['id']}",
+        json={
+            "display_name": "Hacked",
+        },
+    )
+
+    assert r.status_code == 403
+    assert r.json()["detail"] == "User can mutate only own profile"
+
+    # verify unchanged
+    r = alice_client.get(f"/users/{bob_user['id']}")
+    assert r.status_code == 200
+    assert r.json()["display_name"] != "Hacked"
+
+def test_cannot_change_other_user_password(auth_client):
+    alice = auth_client.create_user_and_login("alice_pw", "secret")
+    bob = (AuthClient(TestClient(app))).create_user_and_login("bob_pw", "secret")
+
+    alice_client = alice.client
+
+    bob_user = bob.client.get("/auth/me").json()
+
+    r = alice_client.patch(
+        f"/users/{bob_user['id']}",
+        json={
+            "password": "hacked-password",
+        },
+    )
+
+    assert r.status_code == 403
+
+def test_cannot_delete_other_user(auth_client):
+    alice = auth_client.create_user_and_login("alice_del", "secret")
+    bob = (AuthClient(TestClient(app))).create_user_and_login("bob_del", "secret")
+
+    alice_client = alice.client
+
+    bob_user = bob.client.get("/auth/me").json()
+
+    r = alice_client.delete(
+        f"/users/{bob_user['id']}",
+    )
+
+    assert r.status_code == 403
+    assert r.json()["detail"] == "User can mutate only own profile"
+
+    # user should still exist
+    r = alice_client.get(f"/users/{bob_user['id']}")
+    assert r.status_code == 200
+
+def test_delete_own_user(auth_client):
+    session = auth_client.create_user_and_login("self_delete", "secret")
+
+    client = session.client
+    me = client.get("/auth/me").json()
+
+    r = client.delete(f"/users/{me['id']}")
+
+    assert r.status_code == 200
+    assert r.json()["status"] == "deleted"
+
+    r = client.get(f"/users/{me['id']}")
+    assert r.status_code == 404

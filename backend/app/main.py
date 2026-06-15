@@ -16,8 +16,6 @@ from app.api.image import router as image_router
 from app.api.auth import router as auth_router
 
 
-Base.metadata.create_all(bind=engine)
-
 app = FastAPI()
 
 app.include_router(user_router)

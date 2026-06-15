@@ -1,9 +1,9 @@
 # wikiclone
 
 TODO
-- [ ] db postgres
+- [x] db postgres
   - [x] database connection, orm
-  - [ ] migrations
+  - [x] migrations
 - [x] backend fastapi
   - [x] user CRUD endpoints
   - [x] article CRUD endpoints
@@ -44,3 +44,6 @@ TODO
   - [ ] github actions
 
 - [ ] adr 6 entries
+- [ ] readme
+  - [ ] run instructions
+  - [ ] architecture description

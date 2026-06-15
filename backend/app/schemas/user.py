@@ -24,3 +24,9 @@ class UserRead(BaseModel):
     model_config = {
         "from_attributes": True
     }
+
+class UserUpdate(BaseModel):
+    username: str | None = None
+    display_name: str | None = None
+    password: str | None = None
+    avatar_id: UUID | None = None

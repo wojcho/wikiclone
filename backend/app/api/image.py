@@ -59,6 +59,28 @@ def list_images(db: Session = Depends(get_db)):
     return db.query(Image).order_by(Image.created_at.desc()).all()
 
 
+@router.patch("/{image_id}", response_model=ImageRead)
+async def update_image(
+    image_id: UUID,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_user),
+):
+    image = db.get(Image, image_id)
+
+    if not image:
+        raise HTTPException(404, "Image not found")
+
+    image.display_name = file.filename
+    image.content_type = file.content_type or "application/octet-stream"
+    image.data = await file.read()
+
+    db.commit()
+    db.refresh(image)
+
+    return image
+
+
 @router.delete("/{image_id}")
 def delete_image(image_id: UUID, db: Session = Depends(get_db)):
     image = db.get(Image, image_id)

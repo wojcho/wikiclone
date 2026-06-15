@@ -120,3 +120,119 @@ def test_login_me_and_logout_flow(auth_client):
     # now unauthorized
     me_after = client.get("/auth/me")
     assert me_after.status_code == 401
+
+
+def test_update_user_display_name(auth_client):
+    client = auth_client.create_user_and_login("u1", "secret").client
+
+    user = client.get("/auth/me").json()
+
+    user_id = user["id"]
+
+    r = client.patch(
+        f"/users/{user_id}",
+        json={"display_name": "New Name"},
+    )
+
+    assert r.status_code == 200
+    assert r.json()["display_name"] == "New Name"
+
+
+def test_update_user_password(auth_client):
+    client = auth_client.create_user_and_login("u2", "secret").client
+
+    user = client.get("/auth/me").json()
+
+    user_id = user["id"]
+
+    r = client.patch(
+        f"/users/{user_id}",
+        json={"password": "new-secret"},
+    )
+
+    assert r.status_code == 200
+
+    # verify password actually changed by re-login attempt
+    login = client.post(
+        "/auth/login",
+        data={"username": "u2", "password": "new-secret"},
+    )
+
+    assert login.status_code == 200
+
+def test_update_article_text(auth_client):
+    client = auth_client.create_user_and_login("a1", "secret").client
+
+    article = client.post(
+        "/articles",
+        json={
+            "display_name": "Original",
+            "text": "Old text",
+        },
+    ).json()
+
+    article_id = article["id"]
+
+    r = client.patch(
+        f"/articles/{article_id}",
+        json={"text": "Updated text"},
+    )
+
+    assert r.status_code == 200
+    assert r.json()["text"] == "Updated text"
+
+
+def test_update_article_display_name_and_text(auth_client):
+    client = auth_client.create_user_and_login("a2", "secret").client
+
+    article = client.post(
+        "/articles",
+        json={
+            "display_name": "Old title",
+            "text": "Old text",
+        },
+    ).json()
+
+    article_id = article["id"]
+
+    r = client.patch(
+        f"/articles/{article_id}",
+        json={
+            "display_name": "New title",
+            "text": "New text",
+        },
+    )
+
+    assert r.status_code == 200
+    body = r.json()
+
+    assert body["display_name"] == "New title"
+    assert body["text"] == "New text"
+
+
+def test_update_article_images(auth_client):
+    client = auth_client.create_user_and_login("a3", "secret").client
+
+    # create image
+    img = client.post(
+        "/images",
+        files={"file": ("img.png", b"bytes", "image/png")},
+    ).json()
+
+    article = client.post(
+        "/articles",
+        json={
+            "display_name": "Article",
+            "text": "Text",
+        },
+    ).json()
+
+    article_id = article["id"]
+
+    r = client.patch(
+        f"/articles/{article_id}",
+        json={"primary_image_id": img["id"]},
+    )
+
+    assert r.status_code == 200
+    assert r.json()["primary_image"]["id"] == img["id"]

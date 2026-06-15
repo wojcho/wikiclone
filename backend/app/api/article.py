@@ -2,10 +2,11 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import select, func
 
 from app.dependencies import get_db
 from app.models.article import Article
-from app.schemas.article import ArticleCreate, ArticleRead, ArticleUpdate
+from app.schemas.article import ArticleCreate, ArticleRead, ArticleUpdate, ArticleSearchResult
 from app.security.guards import require_user
 from app.models.user import User
 
@@ -31,6 +32,26 @@ def create_article(
     db.commit()
     db.refresh(article)
     return article
+
+
+@router.get("/search", response_model=list[ArticleSearchResult])
+def search_articles(query: str, limit: int = 10, db: Session = Depends(get_db)):
+    ts_query = func.plainto_tsquery("english", query)
+
+    rank = func.ts_rank(Article.search_vector, ts_query).label("rank")
+
+    stmt = (
+        select(Article, rank)
+        .where(Article.search_vector.op("@@")(ts_query))
+        .order_by(rank.desc())
+    )
+
+    results = db.execute(stmt).mappings().all()
+
+    return [
+        {"article": r["Article"], "rank": r["rank"]}
+        for r in results
+    ]
 
 
 @router.get("/{article_id}", response_model=ArticleRead)

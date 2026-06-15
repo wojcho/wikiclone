@@ -311,3 +311,54 @@ def test_delete_own_user(auth_client):
 
     r = client.get(f"/users/{me['id']}")
     assert r.status_code == 404
+
+def test_search_articles_returns_ranked_results(auth_client):
+    client = auth_client.create_user_and_login("search_user", "secret").client
+
+    # Create articles with different relevance
+    a1 = client.post(
+        "/articles",
+        json={
+            "display_name": "FastAPI Guide",
+            "text": "Learn FastAPI with PostgreSQL full text search",
+        },
+    ).json()
+
+    a2 = client.post(
+        "/articles",
+        json={
+            "display_name": "Cooking Recipe",
+            "text": "This article is about pasta and cooking techniques",
+        },
+    ).json()
+
+    a3 = client.post(
+        "/articles",
+        json={
+            "display_name": "FastAPI Advanced",
+            "text": "Advanced FastAPI patterns and PostgreSQL integration",
+        },
+    ).json()
+
+    # Search for FastAPI
+    r = client.get("/articles/search", params={"query": "FastAPI"})
+
+    assert r.status_code == 200
+    body = r.json()
+
+    # basic structure checks
+    assert isinstance(body, list)
+    assert len(body) > 0
+
+    # ensure schema shape
+    first = body[0]
+    assert "article" in first
+    assert "rank" in first
+
+    # ensure correct ordering (highest rank first)
+    ranks = [item["rank"] for item in body]
+    assert ranks == sorted(ranks, reverse=True)
+
+    # ensure relevant articles appear
+    titles = [item["article"]["display_name"] for item in body]
+    assert any("FastAPI" in title for title in titles)

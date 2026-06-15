@@ -1,10 +1,10 @@
 import uuid
 
-from sqlalchemy import ForeignKey, Text, String
+from sqlalchemy import ForeignKey, Text, String, Index, Computed
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.dialects.postgresql import TSVECTOR
 
 from .base import Base, UUIDMixin, TimestampMixin
-
 
 class Article(
     Base,
@@ -21,6 +21,14 @@ class Article(
     text: Mapped[str] = mapped_column(
         Text,
         nullable=False,
+    )
+
+    search_vector: Mapped[str] = mapped_column(
+        TSVECTOR,
+        Computed(
+            "to_tsvector('english', coalesce(display_name, '') || ' ' || coalesce(text, ''))",
+            persisted=True,
+        ),
     )
 
     creator_id: Mapped[uuid.UUID] = mapped_column(

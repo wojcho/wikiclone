@@ -27,8 +27,14 @@ class ArticleRead(BaseModel):
         "from_attributes": True
     }
 
+
 class ArticleUpdate(BaseModel):
     display_name: str | None = None
     text: str | None = None
     primary_image_id: UUID | None = None
     background_image_id: UUID | None = None
+
+
+class ArticleSearchResult(BaseModel):
+    article: ArticleRead
+    rank: float

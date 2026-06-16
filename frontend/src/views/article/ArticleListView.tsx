@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 
-import { listArticlesArticlesGet, listUsersUsersGet } from "../../client/sdk.gen";
+import { listArticlesArticlesGet, listUsersUsersGet, searchArticlesArticlesSearchGet } from "../../client/sdk.gen";
 import type { ArticleRead, UserRead } from "../../client/types.gen";
 
 export default function ArticleListView() {
@@ -19,6 +19,45 @@ export default function ArticleListView() {
   const [users, setUsers] = useState<UserRead[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const [search, setSearch] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+
+  const loadArticles = async () => {
+    const res = await listArticlesArticlesGet({ throwOnError: true });
+    const data = (res as any)?.data ?? res;
+    setArticles(data ?? []);
+    setIsSearching(false);
+  };
+
+  const searchArticles = async (value: string) => {
+    if (!value.trim()) {
+      loadArticles();
+      return;
+    }
+
+    setLoading(true);
+    setIsSearching(true);
+
+    try {
+      const res = await searchArticlesArticlesSearchGet({
+        query: {
+          query: value,
+          limit: 20,
+        },
+        throwOnError: true,
+      });
+
+      const data = (res as any)?.data ?? res;
+
+      // backend returns: ArticleSearchResult[]
+      setArticles(data.map((r: any) => r.article));
+    } catch {
+      setError("Search failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const load = async () => {
@@ -85,6 +124,39 @@ export default function ArticleListView() {
       <Typography variant="h4" sx={{ mb: 2 }}>
         Articles
       </Typography>
+
+      <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search articles..."
+          style={{
+            flex: 1,
+            padding: "10px",
+            borderRadius: 6,
+            border: "1px solid #ccc",
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") searchArticles(search);
+          }}
+        />
+
+        <Button variant="contained" onClick={() => searchArticles(search)}>
+          Search
+        </Button>
+
+        {isSearching && (
+          <Button
+            variant="text"
+            onClick={() => {
+              setSearch("");
+              loadArticles();
+            }}
+          >
+            Reset
+          </Button>
+        )}
+      </Box>
 
       <Button component={RouterLink} to="/articles/new" variant="contained" sx={{ mb: 2 }}>
         Create Article

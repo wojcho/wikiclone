@@ -34,10 +34,12 @@ function App() {
           <Route path="/users/:id/edit" element={<UserEditView />} />
 
           <Route path="/articles/" element={<ArticleListView />} />
+          <Route path="/articles/new" element={<ArticleEditView />} />
           <Route path="/articles/:id" element={<ArticleView />} />
           <Route path="/articles/:id/edit" element={<ArticleEditView />} />
 
           <Route path="/images/" element={<ImageListView />} />
+          <Route path="/images/new" element={<ImageEditView />} />
           <Route path="/images/:id" element={<ImageView />} />
           <Route path="/images/:id/edit" element={<ImageEditView />} />
         </Route>

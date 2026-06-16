@@ -33,7 +33,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const me = await meAuthMeGet();
 
       const userId = (me.data as any)?.id;
-      console.log(userId);
 
       if (!userId || typeof userId !== "string") {
         setUser(null);

@@ -90,4 +90,3 @@ def delete_image(image_id: UUID, db: Session = Depends(get_db)):
     db.delete(image)
     db.commit()
     return {"status": "deleted"}
-

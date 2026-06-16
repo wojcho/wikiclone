@@ -1,5 +1,6 @@
 from sqlalchemy import LargeBinary, String
 from sqlalchemy.orm import Mapped, mapped_column
+from pgvector.sqlalchemy import Vector
 
 from .base import Base, UUIDMixin, TimestampMixin
 
@@ -24,4 +25,9 @@ class Image(
     data: Mapped[bytes] = mapped_column(
         LargeBinary,
         nullable=False,
+    )
+
+    embedding: Mapped[list[float]] = mapped_column(
+        Vector(512),  # appropriate for openai/clip-vit-base-patch32
+        nullable=True,
     )

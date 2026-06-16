@@ -66,7 +66,7 @@ def test_upload_and_get_image_metadata(auth_client):
 
     r = client.post(
         "/images",
-        files={"file": ("test.png", file_content, "image/png")},
+        files={"file": ("test.png", file_content, "application/octet-stream")},
     )
     assert r.status_code == 200
 
@@ -74,7 +74,7 @@ def test_upload_and_get_image_metadata(auth_client):
     image_id = image["id"]
 
     assert image["display_name"] == "test.png"
-    assert image["content_type"] == "image/png"
+    assert image["content_type"] == "application/octet-stream"
 
     # Fetch metadata
     r = client.get(f"/images/{image_id}")
@@ -218,7 +218,7 @@ def test_update_article_images(auth_client):
     # create image
     img = client.post(
         "/images",
-        files={"file": ("img.png", b"bytes", "image/png")},
+        files={"file": ("img.png", b"bytes", "application/octet-stream")},
     ).json()
 
     article = client.post(

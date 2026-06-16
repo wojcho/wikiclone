@@ -12,6 +12,7 @@ import { useParams, useNavigate } from "react-router-dom";
 
 import {
   getImageMetadataImagesImageIdGet,
+  similarImagesImagesImageIdSimilarGet,
 } from "../../client/sdk.gen";
 
 import type { ImageRead } from "../../client/types.gen";
@@ -23,6 +24,9 @@ export default function ImageView() {
   const [image, setImage] = useState<ImageRead | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const [similar, setSimilar] = useState<ImageRead[]>([]);
+  const [similarLoading, setSimilarLoading] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -38,10 +42,25 @@ export default function ImageView() {
 
         const data = (res as any)?.data ?? res;
         setImage(data);
+
+        // ---- fetch similar images ----
+        setSimilarLoading(true);
+
+        const similarRes = await similarImagesImagesImageIdSimilarGet({
+          path: { image_id: id },
+          query: { limit: 4 },
+          throwOnError: true,
+        });
+
+        const similarData =
+          (similarRes as any)?.data ?? similarRes;
+
+        setSimilar(similarData ?? []);
       } catch {
         setError("Failed to load image");
       } finally {
         setLoading(false);
+        setSimilarLoading(false);
       }
     };
 
@@ -124,6 +143,54 @@ export default function ImageView() {
               Back
             </Button>
           </Stack>
+
+
+          <Divider />
+
+          {/* Similar Images */}
+          <Stack spacing={2}>
+            <Typography variant="h6">
+              Similar images
+            </Typography>
+
+            {similarLoading && (
+              <CircularProgress size={20} />
+            )}
+
+            {!similarLoading && similar.length === 0 && (
+              <Typography variant="body2" color="text.secondary">
+                No similar images found
+              </Typography>
+            )}
+
+            <Stack direction="row" spacing={2} flexWrap="wrap">
+              {similar.map((img) => {
+                const url = `http://localhost:8000/images/${img.id}/raw`;
+
+                return (
+                  <Box
+                    key={img.id}
+                    component="img"
+                    src={url}
+                    alt={img.display_name}
+                    onClick={() => navigate(`/images/${img.id}`)}
+                    sx={{
+                      width: 180,
+                      height: 120,
+                      objectFit: "cover",
+                      borderRadius: 1,
+                      cursor: "pointer",
+                      bgcolor: "#f5f5f5",
+                      "&:hover": {
+                        opacity: 0.8,
+                      },
+                    }}
+                  />
+                );
+              })}
+            </Stack>
+          </Stack>
+          
         </Stack>
       </Paper>
     </Box>

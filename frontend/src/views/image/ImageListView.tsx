@@ -10,33 +10,61 @@ import {
   Grid,
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
-import { listImagesImagesGet } from "../../client/sdk.gen";
+import { listImagesImagesGet, searchImagesImagesSearchGet } from "../../client/sdk.gen";
 import type { ImageRead } from "../../client/types.gen";
 
 export default function ImageListView() {
   const [images, setImages] = useState<ImageRead[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+
+  const handleSearch = async () => {
+    if (!query.trim()) return;
+
+    try {
+      setLoading(true);
+      setIsSearching(true);
+
+      const res = await searchImagesImagesSearchGet({
+        query: {
+          q: query,
+          limit: 20,
+        },
+        throwOnError: true,
+      });
+
+      const data = (res as any)?.data ?? res;
+      setImages(data ?? []);
+    } catch {
+      setError("Search failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadAll = async () => {
+    try {
+      setLoading(true);
+      setIsSearching(false);
+      setQuery("");
+
+      const res = await listImagesImagesGet({
+        throwOnError: true,
+      });
+
+      const data = (res as any)?.data ?? res;
+      setImages(data ?? []);
+    } catch {
+      setError("Failed to load images");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        setLoading(true);
-
-        const res = await listImagesImagesGet({
-          throwOnError: true,
-        });
-
-        const data = (res as any)?.data ?? res;
-        setImages(data ?? []);
-      } catch {
-        setError("Failed to load images");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    load();
+    loadAll();
   }, []);
 
   if (loading) {
@@ -87,8 +115,36 @@ export default function ImageListView() {
           variant="contained"
           sx={{ mb: 2 }}
         >
-          Upload Image
+        Upload Image
+      </Button>
+
+      <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search images..."
+          style={{
+            flex: 1,
+            padding: "10px",
+            borderRadius: 6,
+            border: "1px solid #ccc",
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleSearch();
+          }}
+        />
+
+        <Button variant="contained" onClick={handleSearch}>
+          Search
         </Button>
+
+        {isSearching && (
+          <Button variant="text" onClick={loadAll}>
+            Reset
+          </Button>
+        )}
+      </Box>
+
 
       <Grid container spacing={2}>
         {images.map((img) => (

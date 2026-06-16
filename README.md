@@ -9,9 +9,9 @@ TODO
   - [x] article CRUD endpoints
   - [x] image CRUD endpoints
   - [x] update endpoints
-- [ ] docker compose
+- [x] docker compose
   - [x] backend
-  - [ ] frontend
+  - [x] frontend
   - [ ] entire application
 - [x] auth jwt
   - [x] password hashing
@@ -19,13 +19,13 @@ TODO
   - [x] logout endpoint
   - [x] shield create/update/delete endpoints on only logged in users
   - [x] only user can edit their own data
-- [ ] frontend react mui
+- [x] frontend react mui
   - [x] ts client `npx @hey-api/openapi-ts -i http://localhost:8000/openapi.json -o src/client`
-  - [ ] login
-  - [ ] user
-  - [ ] main
-  - [ ] article
-  - [ ] image
+  - [x] login
+  - [x] user
+  - [x] main
+  - [x] article
+  - [x] image
 - [x] gadgets
   - [x] full text search on article text
   - [x] vector search on image
@@ -40,7 +40,6 @@ TODO
   - [x] pydantic on backend input
 - [x] tests
   - [x] backend
-  - [ ] frontend
 - [ ] ci cd
   - [ ] github actions
 

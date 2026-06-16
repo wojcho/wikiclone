@@ -41,6 +41,26 @@ async def upload_image(
     return image
 
 
+@router.get("/search", response_model=list[ImageRead])
+def search_images(
+    q: str = Query(...),
+    limit: int = 10,
+    db: Session = Depends(get_db),
+):
+    embedding = text_embed(q)
+
+    stmt = (
+        select(Image)
+        .where(Image.embedding.isnot(None))
+        .order_by(
+            Image.embedding.cosine_distance(embedding)
+        )
+        .limit(limit)
+    )
+
+    return db.scalars(stmt).all()
+
+
 @router.get("/{image_id}", response_model=ImageRead)
 def get_image_metadata(image_id: UUID, db: Session = Depends(get_db)):
     image = db.get(Image, image_id)
@@ -127,26 +147,6 @@ def similar_images(
         )
         .order_by(
             Image.embedding.cosine_distance(image.embedding)
-        )
-        .limit(limit)
-    )
-
-    return db.scalars(stmt).all()
-
-
-@router.get("/search", response_model=list[ImageRead])
-def search_images(
-    q: str = Query(...),
-    limit: int = 10,
-    db: Session = Depends(get_db),
-):
-    embedding = text_embed(q)
-
-    stmt = (
-        select(Image)
-        .where(Image.embedding.isnot(None))
-        .order_by(
-            Image.embedding.cosine_distance(embedding)
         )
         .limit(limit)
     )

@@ -12,7 +12,7 @@ TODO
 - [x] docker compose
   - [x] backend
   - [x] frontend
-  - [ ] entire application
+  - [x] entire application
 - [x] auth jwt
   - [x] password hashing
   - [x] login endpoint giving httponly cookie

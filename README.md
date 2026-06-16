@@ -22,11 +22,21 @@ When wanting to stop the running servers, run `docker compose down`.
 
 Frontend would run at port `3000`, backend at port `8000`, database at port `5432`.
 
+To initialize data, navigate to [images](./images/) directory, and run initializing script [file](./images/initialize_values.py) `python initialize_values.py`.
+
 To run tests of backend, enter the [backend](./backend) directory, and run the script [run-backend-tests.sh](./backend/run-backend-tests.sh).
 That script would automatically destroy the containers once the integration tests would stop running.
 Test report would be showcased after the tests.
 
 During testing at 2025-06-16, the tests all produced values which were in agreement with assertions.
+
+## Screenshots
+
+![Main Dashboard](./screenshots/1.png)
+
+![Sample Article](./screenshots/2.png)
+
+![Sample Image](./screenshots/3.png)
 
 ## Fulfillment of criteria
 

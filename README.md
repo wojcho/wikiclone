@@ -64,7 +64,7 @@ Graded Extensions
 - [x] Fata validation
   - [x] Pydantic on backend input
 - [x] Tests
-  - [x] Backend
+  - [x] [Backend](./backend/tests/)
 
 Ungraded Extensions
 - [x] Full text search on article text
@@ -75,9 +75,15 @@ Ungraded Extensions
 - [x] Readme
   - [x] Run instructions
   - [x] Architecture description
-- [ ] adr 6 entries
+- [ ] ADR 6 entries
 
 ## Architecture decision records
+
+Decision - What was chosen?
+Context - For what purpose there had to be a choice?
+Alternatives - What else could have been chosen?
+Justification - Why that choice?
+Trade-offs - What are consequences and losses?
 
 | Decision | Context | Alternatives | Justification | Trade-offs |
 | -------- | ------- | ------------ | ------------- | ---------- |

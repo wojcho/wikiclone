@@ -17,10 +17,13 @@ import {
   getImageMetadataImagesImageIdGet,
 } from "../../client/sdk.gen";
 import type { ImageRead } from "../../client/types.gen";
+import { useAuth } from "../../auth/AuthContext";
 
 export default function ImageEditView() {
   const { id } = useParams();
   const navigate = useNavigate();
+
+  const { user: currentUser } = useAuth();
 
   const isEdit = Boolean(id);
 
@@ -62,6 +65,24 @@ export default function ImageEditView() {
 
     load();
   }, [id, isEdit]);
+
+  if (!currentUser) {
+      return (
+        <Box sx={{ mt: 4 }}>
+          <Stack spacing={2}>
+            <Alert severity="error">
+              You are not allowed to edit this user image.
+            </Alert>
+            <Button
+              variant="outlined"
+              onClick={() => navigate(`/images/${id}`)}
+            >
+              Back
+            </Button>
+          </Stack>
+        </Box>
+      );
+    }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];

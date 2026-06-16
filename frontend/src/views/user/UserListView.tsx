@@ -7,7 +7,6 @@ import {
   Stack,
   Avatar,
   CircularProgress,
-  Chip,
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 
@@ -83,12 +82,12 @@ export default function UserListView() {
         {users.map((user) => (
           <Card
             key={user.id}
+            raised={isSelf(user.id)}
             sx={{
               display: "flex",
               p: 2,
               gap: 2,
-              bgcolor: isSelf(user.id) ? "action.selected" : "background.paper",
-              border: isSelf(user.id) ? "1px solid" : "none",
+              border: isSelf(user.id) ? "2px solid" : "none",
               borderColor: "primary.main",
             }}
           >

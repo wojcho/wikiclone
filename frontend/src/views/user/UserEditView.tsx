@@ -96,10 +96,10 @@ export default function UserEditView() {
     }
   };
 
-  const isForbidden =
+  const isForbidden = (!currentUser) || (
     currentUser &&
     id &&
-    currentUser.id !== id;
+    currentUser.id !== id);
 
   if (authLoading || loading) {
     return (

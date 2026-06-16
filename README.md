@@ -20,7 +20,7 @@ TODO
   - [x] shield create/update/delete endpoints on only logged in users
   - [x] only user can edit their own data
 - [ ] frontend react mui
-  - [ ] ts client `npx @hey-api/openapi-ts -i http://localhost:8000/openapi.json -o src/client`
+  - [x] ts client `npx @hey-api/openapi-ts -i http://localhost:8000/openapi.json -o src/client`
   - [ ] login
   - [ ] user
   - [ ] main
@@ -44,7 +44,23 @@ TODO
 - [ ] ci cd
   - [ ] github actions
 
-- [ ] adr 6 entries
 - [ ] readme
   - [ ] run instructions
   - [ ] architecture description
+- [ ] adr 6 entries
+
+| Decision | Context | Alternatives | Justification | Trade-offs |
+| -------- | ------- | ------------ | ------------- | ---------- |
+| Python as Backend Language | A language which supports frameworks for connection to databases, and setting up REST APIs, of relatively static and simple structure. Ability to use ML models without intermediaries could be beneficial. Use case is simple, so also the language should mostly "get out of the way". | Java (good support for database integrations, large tooling support, verbose code, large complication of environment, many packages are old), TypeScript (same language on frontend and backend, npm is better for use than virtual environments, worse ML support), Go (static types, simple code, verbose, slow iteration, not much ML support) | Rich libraries, simple and clear syntax, main language for ML. | Heterogeneity of stack between frontend and backend, Only type adnotations without static type check unless using Mypy |
+| REST API | interface through which frontend and backend connect | trpc (would require both sides to be typescript), grpc (binary and with automatic generation, but http/2 is not widely supported and might require proxy for some features), graphql (bloated, not much value offering) | can be called from anywhere without special client, crosses firewalls and networks | rest api itself does not offer type checking and serialization of classes and much has to be implemented in application |
+| FastAPI | api of application has to be provided between server and browser | Django | Automatic code generation, automatic documentation generation, large environment, ease of use, Pydantic type safety | data sent through text which is more bandwidth heavy and costly than binary data |
+| PostgreSQL | data persistence on a simple schema but with complicated indices | MongoDB (limited full text search, one index per collection) | Advanced features, full text search, plugins | Schema is harder to change than in NoSQL databases |
+| JWT HttpOnly | user needs to authenticate themselves | jwt in header (vulnerable against arbitrary js), sessions (worsens potential caching), oauth (reliance on external provider) | resistance against value being obtained by rouge js because it is not obtainable by js | csrf |
+| MUI | application needs to be more visually appealing than basic html elements | tailwind css (too much manual styling), shadcn (additional flexibiliy, similar base components, more complicated), bulma (css only, fast, takes more work for similar results) | Many available components, many examples, extensive documentation, more production grade looks than without styling | Low flexbility of styling is mostly fixed and associated with a certain company, Usage of emotion for css which makes application slower, Large size of packages and potentially also large bundle size, More verbose than unstyled html |
+| SQLAlchemy | mapping between data in database and instances of classes |              | support for advanced postgres features, extensive environment, ease of use, plugins with pgvector |            |
+| Alembic | schema versioning | nothing, django migrations | sqlalchemy was chosen for its flexibility and ability to work with postgres indices, SQLAlchemy works with it better | annoying in combination with containers |
+| Argon2 | hashing of passwords with salts, with variable strength and time | bcrypt (old) | resistance to attacks using gpus | no public cryptanalysis of it was published |
+| Markdown for article markup | users need to write articles in some way | mdx, html, bbcode, plain text | users would be familiar with it, easier than html, mostly human readable | limited language constructs |
+| React for frontend | user needs to interact with application through graphical interfaces | static site generation, ssr, other spa frameworks | flexibility for future growth, extensive environment, ease of development, offloading to client instead of computing on server can improve scaling | slow, bad for positioning and seo, bad for web spiders |
+| Vite for frontend bundler | frontend application has to be built and deployed | esbuild, webpack | more modern, more dynamic reload development options in its environment than with create react app which is outdated and has vulnerabilities |            |
+| clip-vit-base-patch32 | embedding of images and vectors into same space for search | external api (potentially costly, increases complexity and requires obtaining a client) | less cost, relatively fast | docker image with ml packages becomes bloated |

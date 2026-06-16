@@ -48,7 +48,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       const userData = (fullUser as any)?.data ?? fullUser;
-      console.log(userData);
 
       if (userData?.id) {
         setUser(userData);

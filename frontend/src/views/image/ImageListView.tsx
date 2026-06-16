@@ -5,9 +5,9 @@ import {
   CardContent,
   CardMedia,
   Typography,
-  Stack,
   CircularProgress,
   Button,
+  Grid,
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import { listImagesImagesGet } from "../../client/sdk.gen";
@@ -90,34 +90,37 @@ export default function ImageListView() {
           Upload Image
         </Button>
 
-      <Stack>
+      <Grid container spacing={2}>
         {images.map((img) => (
-          <Card key={img.id} sx={{ width: 260 }}>
-            <CardMedia
-              component="img"
-              height="160"
-              image={`http://localhost:8000/images/${img.id}/raw`}
-              alt={img.display_name}
-            />
+          <Grid key={img.id} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+            <Card sx={{ height: "100%" }}>
+              <CardMedia
+                component="img"
+                height="160"
+                image={`http://localhost:8000/images/${img.id}/raw`}
+                alt={img.display_name}
+              />
 
-            <CardContent>
-              <Typography variant="subtitle1" noWrap>
-                <RouterLink to={`/images/${img.id}`}>
-                  {img.display_name}
-                </RouterLink>
-              </Typography>
+              <CardContent>
+                <Typography variant="subtitle1" noWrap>
+                  <RouterLink to={`/images/${img.id}`}>
+                    {img.display_name}
+                  </RouterLink>
+                </Typography>
 
-              <Typography variant="body2" color="text.secondary">
-                {img.content_type}
-              </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {img.content_type}
+                </Typography>
 
-              <Typography variant="caption" color="text.secondary">
-                ID: {img.id.slice(0, 8)}...
-              </Typography>
-            </CardContent>
-          </Card>
+                <Typography variant="caption" color="text.secondary">
+                  ID: {img.id.slice(0, 8)}...
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
         ))}
-      </Stack>
+      </Grid>
+
     </Box>
   );
 }

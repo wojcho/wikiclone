@@ -77,9 +77,18 @@ export default function ImageListView() {
 
   return (
     <Box sx={{ maxWidth: 1000, mx: "auto", mt: 4 }}>
-      <Typography variant="h4" sx={{ mb: 3 }}>
+      <Typography variant="h4" sx={{ mb: 2 }}>
         Images
       </Typography>
+
+      <Button
+          component={RouterLink}
+          to="/images/new"
+          variant="contained"
+          sx={{ mb: 2 }}
+        >
+          Upload Image
+        </Button>
 
       <Stack>
         {images.map((img) => (
